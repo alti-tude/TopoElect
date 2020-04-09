@@ -26,7 +26,12 @@ mpirun -n 10 main
 ### IMPLEMENTATION
 1. Copy the test.cpp file and rename to algo_name.cpp
 2. Edit the CMakeLists.txt in the root folder
-    * Instead of ```add_executable(main src/main.cpp src/test.cpp)``` change it to ```add_executable(main src/main.cpp src/algo_name.cpp)```
+    * Add at the end (change algo_name to name of your algo)
+    ```
+    add_executable(algo_name src/main.cpp src/algo_name.cpp)
+    target_link_libraries(algo_name ${MPI_CXX_LIBRARIES} topo)
+    ```
+3. From now on, to run your code, the final executable will be inside the build folder and it will be called ```algo_name```
 
 ### TOPO NAMESPACE
 1. Available graph functions (call at the beginning of the run function according to preference )
