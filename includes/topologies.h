@@ -12,6 +12,7 @@ namespace topo{
     };
 
     extern std::vector<std::vector<int> > adjacency_list;
+    extern std::vector<int> neighbours;
     extern std::vector<std::vector<vals> > globals;
 
     extern int rank;

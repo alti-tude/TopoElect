@@ -2,8 +2,18 @@
 
 #include "mpi.h"
 #include "iostream"
+#include "unistd.h"
 
 #include "test.h"
+
+void debug(){
+    if(topo::rank==0){
+        volatile int i=0;
+        std::cerr << "wating for debugger pid=" << getpid() << std::endl;
+
+        while(i==0);
+    }
+}
 
 int main(int argc, char* argv[]){
     MPI_Init( &argc, &argv );
@@ -14,6 +24,10 @@ int main(int argc, char* argv[]){
     topo::rank = rank;
     topo::numprocs = numprocs;
 
+    #ifdef DEBUG
+    debug();
+    #endif
+    
     MPI_Barrier( MPI_COMM_WORLD );
 
     topo::init();

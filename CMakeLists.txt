@@ -11,3 +11,4 @@ add_subdirectory(src)
 add_executable(main src/main.cpp src/test.cpp)
 target_link_libraries(main ${MPI_CXX_LIBRARIES} topo)
 
+# add_definitions(-DDEBUG)
