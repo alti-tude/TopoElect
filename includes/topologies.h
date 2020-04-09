@@ -5,23 +5,19 @@
 #include "vector"
 
 namespace topo{
-    union vals
-    {
-        long long int ival;
-        double dval;
-    };
-
+    extern int TAGS_GATHER_NEIGHBOURS;
+    extern int TAGS_CUSTOM_BASE;
+    
     extern std::vector<std::vector<int> > adjacency_list;
     extern std::vector<int> neighbours;
-    extern std::vector<std::vector<vals> > globals;
+    extern std::vector<std::vector<long long int> > globals;
 
     extern int rank;
     extern int numprocs;
 
     void init();
     void make_ring();
-    int make_global(std::vector<vals> v, bool is_root=false);
-
+    int make_global(std::vector<long long int> v, bool is_root=false);
 }
 
 #endif
