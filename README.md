@@ -5,6 +5,14 @@ make all
 mpirun -n 2 main
 ```
 
+### SHOUT PROTOCOL
+```
+mkdir build && cd build
+cmake ..
+make all
+mpirun -n 9 shout
+```
+
 ### EXPECTED OUTPUT OF THE TEST PROGRAM FOR 10 PROCS
 ```bash
 mpirun -n 10 main
