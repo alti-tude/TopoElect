@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.07)
 project(ds_project)
 
+set(CMAKE_CXX_FLAGS "-std=c++11")
+
 find_package(MPI REQUIRED) 
 include_directories(SYSTEM ${MPI_INCLUDE_PATH})
 
