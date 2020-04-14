@@ -31,6 +31,11 @@ int main(int argc, char* argv[]){
     MPI_Barrier( MPI_COMM_WORLD );
 
     topo::init();
+
+    #ifdef RING
+    topo::make_ring();
+    #endif
+
     run();
     
 

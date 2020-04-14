@@ -2,6 +2,8 @@
 #include "vector"
 #include "mpi.h"
 #include "iostream"
+#include "assert.h"
+#include "random"
 
 namespace topo{
     std::vector<std::vector<int> > adjacency_list;
@@ -9,14 +11,24 @@ namespace topo{
     std::vector<std::vector<long long int> > globals;
 
     int TAGS_GATHER_NEIGHBOURS = 101;
+    int TAGS_REDUCE_NEIGHBOURS = 102;
     int TAGS_CUSTOM_BASE = 200;
     
     int rank;
     int numprocs;
+    int num_neighbours;
+    bool is_initiator;
 
     void init(){
         for(int i=0;i<numprocs;i++) 
             adjacency_list.push_back( std::vector<int>() ); 
+
+        #ifdef NUM_INITIATORS
+        std::cout << NUM_INITIATORS << std::endl;
+        if(rand()%numprocs<NUM_INITIATORS) is_initiator=true;
+        #endif
+
+        if(rank==0) is_initiator = true;
     }
 
     void make_ring(){
@@ -35,44 +47,57 @@ namespace topo{
         }
 
         neighbours = adjacency_list[rank];
+        num_neighbours = neighbours.size();
     }
 
     std::vector<long long int> blocking_recv(int source, int tag, MPI_Status& status){
         std::vector<long long int> buffer;
 
         MPI_Probe(source, tag, MPI_COMM_WORLD, &status);
-
         source = status.MPI_SOURCE;
+        tag = status.MPI_TAG;
         int count;
         MPI_Get_count(&status, MPI_LONG_LONG_INT, &count);
 
         MPI_Request req;
         buffer.resize(count);
-        MPI_Irecv(&buffer[0],count,MPI_LONG_LONG_INT,source,globals.size(),MPI_COMM_WORLD, &req);
+        MPI_Irecv(&buffer[0],count,MPI_LONG_LONG_INT,source,tag,MPI_COMM_WORLD, &req);
         MPI_Wait(&req, &status);  
 
         return buffer;     
     }
 
     void send_neighbours(std::vector<long long int>& buffer, int tag, std::vector<bool>& send, std::vector<MPI_Request>& reqs, std::vector<MPI_Status>& stats){        
-        for(int i=0;i<topo::neighbours.size();i++){
-            if(!send[i]) continue;
+        for(auto it:neighbours){
+            if(!send[it]) continue;
             
             MPI_Request req;
             MPI_Status status;
 
-            MPI_Isend(&buffer[0], buffer.size(), MPI_LONG_LONG_INT, topo::neighbours[i], tag, MPI_COMM_WORLD, &req);
+            MPI_Isend(&buffer[0], buffer.size(), MPI_LONG_LONG_INT,it, tag, MPI_COMM_WORLD, &req);
             reqs.push_back(req);
             stats.push_back(status);
         }
     }
 
+    std::vector<long long int> recv_from_neighbour(int idx, int tag){
+        MPI_Status status;
+        if(idx == MPI_ANY_SOURCE) return blocking_recv(MPI_ANY_SOURCE, tag, status);
+
+        assert(idx < num_neighbours);
+        return blocking_recv(neighbours[idx], tag, status);
+    }
+
+    void send_to_neighbour(std::vector<long long int>& buffer, int idx, int tag){
+        assert(idx<num_neighbours);
+        MPI_Send(&buffer[0], buffer.size(), MPI_LONG_LONG_INT, neighbours[idx], tag,MPI_COMM_WORLD);
+    }
     int make_global(std::vector<long long int> buffer, bool is_root){
-        std::vector<bool> send(topo::numprocs, 1);
+        std::vector<bool> send(numprocs, 1);
         std::vector<MPI_Request> reqs;
         std::vector<MPI_Status> stats;
         MPI_Status status;
-        int source = topo::rank;
+        int source = rank;
         
         if(!is_root){
             buffer = blocking_recv(MPI_ANY_SOURCE, globals.size(), status);
@@ -91,24 +116,43 @@ namespace topo{
         return globals.size();
     }
 
-    void gather_neighbours(long long int* val, long long int (*reduction)(long long int a, long long int b)){
-        std::vector<bool> send(topo::numprocs, 1);
+    void reduce_neighbours(long long int* val, long long int (*reduction)(long long int a, long long int b)){
+        std::vector<bool> send(numprocs, 1);
         std::vector<MPI_Request> reqs;
         std::vector<MPI_Status> stats;
         MPI_Status status;
-        int source = topo::rank;
+        int source = rank;
 
         std::vector<long long int> buffer = {*val};
-        send_neighbours(buffer, TAGS_GATHER_NEIGHBOURS, send, reqs, stats);
-
+        send_neighbours(buffer, TAGS_REDUCE_NEIGHBOURS, send, reqs, stats);
+        
         bool flag = 0;
-        long long int value;
+        long long int value = *val;
         for(auto it:neighbours){
-            buffer = blocking_recv(it, TAGS_GATHER_NEIGHBOURS, status);
-            if(!flag) value=buffer[0];
-            else value = reduction(value, buffer[0]);
+            buffer = blocking_recv(it, TAGS_REDUCE_NEIGHBOURS, status);
+            value = reduction(value, buffer[0]);
         }
 
         *val = value;
+    }
+
+    std::vector<std::vector<long long int> > gather_neighbours(std::vector<long long int>& send_buffer){
+        std::vector<bool> send(neighbours.size(), 1);
+        std::vector<MPI_Request> reqs;
+        std::vector<MPI_Status> stats;
+        MPI_Status status;
+        int source = rank;
+
+        send_neighbours(send_buffer, TAGS_GATHER_NEIGHBOURS, send, reqs, stats);
+
+        std::vector<std::vector<long long int> > recvd;
+
+        for(auto it:neighbours){
+            std::vector<long long int> recv_buffer;
+            recv_buffer = blocking_recv(it, TAGS_GATHER_NEIGHBOURS, status);
+            recvd.push_back(recv_buffer);
+        }
+
+        return recvd;
     }
 }   
