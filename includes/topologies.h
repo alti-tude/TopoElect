@@ -23,7 +23,7 @@ namespace topo{
     void make_ring();
     int make_global(std::vector<long long int> v, bool is_root=false);
 
-    std::vector<long long int> recv_from_neighbour(int idx=MPI_ANY_SOURCE, int tag=MPI_ANY_TAG);
+    std::vector<long long int> recv_from_neighbour(int idx=MPI_ANY_SOURCE, int tag=MPI_ANY_TAG, bool return_source = false, bool return_tag=false);
     void send_to_neighbour(std::vector<long long int>& buffer, int idx, int tag);
 
     void reduce_neighbours(long long int* val, long long int (*reduction)(long long int a, long long int b));

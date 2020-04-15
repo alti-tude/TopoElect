@@ -24,11 +24,11 @@ namespace topo{
             adjacency_list.push_back( std::vector<int>() ); 
 
         #ifdef NUM_INITIATORS
-        std::cout << NUM_INITIATORS << std::endl;
-        if(rand()%numprocs<NUM_INITIATORS) is_initiator=true;
+        srand(rank+RANDOM_SEED);
+        if(rank==0) is_initiator = true;
+        else if(rand()%(numprocs-1)<(NUM_INITIATORS-1)) is_initiator=true;
         #endif
 
-        if(rank==0) is_initiator = true;
     }
 
     void make_ring(){
@@ -80,12 +80,18 @@ namespace topo{
         }
     }
 
-    std::vector<long long int> recv_from_neighbour(int idx, int tag){
+    std::vector<long long int> recv_from_neighbour(int idx, int tag, bool return_source, bool return_tag){
         MPI_Status status;
-        if(idx == MPI_ANY_SOURCE) return blocking_recv(MPI_ANY_SOURCE, tag, status);
-
-        assert(idx < num_neighbours);
-        return blocking_recv(neighbours[idx], tag, status);
+        std::vector<long long int> buffer;
+        if(idx == MPI_ANY_SOURCE) buffer = blocking_recv(MPI_ANY_SOURCE, tag, status);
+        else{
+            assert(idx < num_neighbours);
+            buffer = blocking_recv(neighbours[idx], tag, status);
+        }
+        
+        if(return_source) buffer.push_back(status.MPI_SOURCE);
+        if(return_tag) buffer.push_back(status.MPI_TAG);
+        return buffer;
     }
 
     void send_to_neighbour(std::vector<long long int>& buffer, int idx, int tag){

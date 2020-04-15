@@ -34,6 +34,7 @@ int main(int argc, char* argv[]){
 
     #ifdef RING
     topo::make_ring();
+    std::cout << "RING initialised by " << topo::rank << std::endl;
     #endif
 
     run();
