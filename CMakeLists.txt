@@ -17,8 +17,5 @@ add_subdirectory(src)
 add_executable(main src/main.cpp src/test.cpp)
 target_link_libraries(main ${MPI_CXX_LIBRARIES} topo)
 
-add_executable(shout src/main.cpp src/shout.cpp)
-target_link_libraries(shout ${MPI_CXX_LIBRARIES} topo)
-
 
 add_definitions(-D${DEBUG} -D${TOPOLOGY})
