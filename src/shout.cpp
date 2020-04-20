@@ -51,7 +51,6 @@ void run(){
     if(topo::is_initiator) {
         node.root = topo::rank;
         node.father = -1;
-        std::cout << node << ": is initiator\n"; 
 
         TestMsg test_msg(topo::rank);
         std::vector<long long int> buffer = topo::marshal(test_msg);
@@ -92,10 +91,11 @@ void run(){
             }
 
             else if(recvd_test_msg.root == node.root){
-                node.is_reject[source_idx] == 1;
+                node.is_reject[source_idx] = 1;
                 Reject send_reject_msg(node.root);
                 std::vector<long long int> buffer = topo::marshal(send_reject_msg);
                 topo::send_to_neighbour(buffer, source_idx, TAGS_REJECT);
+                acks_reqd -=1;
             }
             //* if(recvd_test_msg.root < node.root) do nothing
         }
