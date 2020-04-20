@@ -7,8 +7,20 @@ long long int Min(long long int a, long long int b){
     return std::min(a,b);
 }
 
-void run(){
+struct TestMsg{
+    long long int tag;
+    long long int rank;
+    long long int root;
 
+    TestMsg(long long int root):tag(-1), rank(topo::rank), root(root) {}
+};
+
+void run(){
+    TestMsg T(2);
+
+    std::vector<long long int> v = topo::marshal<TestMsg>(T);
+    for(auto it:v) std::cout << it << " ";
+    std::cout << std::endl;
     // if(topo::rank==0) {
     //     std::vector<long long int> v = {1,2,3};
     //     for(int i=0;i<topo::num_neighbours;i++) {
