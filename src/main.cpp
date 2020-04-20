@@ -38,6 +38,10 @@ int main(int argc, char* argv[]){
     topo::make_ring();
     std::cout << "RING initialised by " << topo::rank << std::endl;
     #endif
+    #ifdef MESH
+    topo::make_mesh();
+    std::cout << "MESH initialised by " << topo::rank << std::endl;
+    #endif
 
     run();
     
