@@ -6,25 +6,25 @@
 #include "assert.h"
 
 namespace topo{
-    extern int TAGS_GATHER_NEIGHBOURS;
-    extern int TAGS_REDUCE_NEIGHBOURS;
-    extern int TAGS_CUSTOM_BASE;
+    extern long long int TAGS_GATHER_NEIGHBOURS;
+    extern long long int TAGS_REDUCE_NEIGHBOURS;
+    extern long long int TAGS_CUSTOM_BASE;
     
     // extern std::vector<std::vector<int> > adjacency_list;
     // extern std::vector<int> neighbours;
     extern std::vector<std::vector<long long int> > globals;
 
-    extern int rank;
-    extern int numprocs;
-    extern int num_neighbours;
+    extern long long int rank;
+    extern long long int numprocs;
+    extern long long int num_neighbours;
     extern bool is_initiator;
 
     void init();
     void make_ring();
-    int make_global(std::vector<long long int> v, bool is_root=false);
+    long long int make_global(std::vector<long long int> v, bool is_root=false);
 
-    std::vector<long long int> recv_from_neighbour(int idx=MPI_ANY_SOURCE, int tag=MPI_ANY_TAG, bool return_source = false, bool return_tag=false);
-    void send_to_neighbour(std::vector<long long int>& buffer, int idx, int tag);
+    std::vector<long long int> recv_from_neighbour(long long int idx=MPI_ANY_SOURCE, long long int tag=MPI_ANY_TAG, bool return_source = false, bool return_tag=false);
+    void send_to_neighbour(std::vector<long long int>& buffer, long long int idx, long long int tag);
 
     void reduce_neighbours(long long int* val, long long int (*reduction)(long long int a, long long int b));
     std::vector<std::vector<long long int> > gather_neighbours(std::vector<long long int>& send_buffer);
@@ -37,10 +37,8 @@ namespace topo{
         long long int* p = (long long int*)&s;
         std::vector<long long int> out;
         for(int i=0;i<max;i++){
-            std::cout << *(p+i) << " ";
             out.push_back(*(p+i));
         }
-        std::cout <<sizeof(s) << std::endl;
 
         return out;
     }

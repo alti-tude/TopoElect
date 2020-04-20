@@ -6,22 +6,22 @@
 #include "random"
 
 namespace topo{
-    std::vector<std::vector<int> > adjacency_list;
-    std::vector<int> neighbours;
+    std::vector<std::vector<long long int> > adjacency_list;
+    std::vector<long long int> neighbours;
     std::vector<std::vector<long long int> > globals;
 
-    int TAGS_GATHER_NEIGHBOURS = 101;
-    int TAGS_REDUCE_NEIGHBOURS = 102;
-    int TAGS_CUSTOM_BASE = 200;
-    
-    int rank;
-    int numprocs;
-    int num_neighbours;
+    long long int TAGS_GATHER_NEIGHBOURS = 101;
+    long long int TAGS_REDUCE_NEIGHBOURS = 102;
+    long long int TAGS_CUSTOM_BASE = 200;
+
+    long long int rank;
+    long long int numprocs;
+    long long int num_neighbours;
     bool is_initiator;
 
     void init(){
         for(int i=0;i<numprocs;i++) 
-            adjacency_list.push_back( std::vector<int>() ); 
+            adjacency_list.push_back( std::vector<long long int>() ); 
 
         #ifdef NUM_INITIATORS
         srand(rank+RANDOM_SEED);
@@ -38,8 +38,8 @@ namespace topo{
         }
         else{
             for(int i=0;i<numprocs;i++){
-                std::vector<int> v;
-                int next = (i+1)%numprocs;
+                std::vector<long long int> v;
+                long long int next = (i+1)%numprocs;
 
                 adjacency_list[i].push_back(next);
                 adjacency_list[next].push_back(i);
@@ -50,7 +50,7 @@ namespace topo{
         num_neighbours = neighbours.size();
     }
 
-    std::vector<long long int> blocking_recv(int source, int tag, MPI_Status& status){
+    std::vector<long long int> blocking_recv(long long int source, long long int tag, MPI_Status& status){
         std::vector<long long int> buffer;
 
         MPI_Probe(source, tag, MPI_COMM_WORLD, &status);
@@ -67,7 +67,7 @@ namespace topo{
         return buffer;     
     }
 
-    void send_neighbours(std::vector<long long int>& buffer, int tag, std::vector<bool>& send, std::vector<MPI_Request>& reqs, std::vector<MPI_Status>& stats){        
+    void send_neighbours(std::vector<long long int>& buffer, long long int tag, std::vector<bool>& send, std::vector<MPI_Request>& reqs, std::vector<MPI_Status>& stats){        
         for(auto it:neighbours){
             if(!send[it]) continue;
             
@@ -80,7 +80,7 @@ namespace topo{
         }
     }
 
-    std::vector<long long int> recv_from_neighbour(int idx, int tag, bool return_source, bool return_tag){
+    std::vector<long long int> recv_from_neighbour(long long int idx, long long int tag, bool return_source, bool return_tag){
         MPI_Status status;
         std::vector<long long int> buffer;
         if(idx == MPI_ANY_SOURCE) buffer = blocking_recv(MPI_ANY_SOURCE, tag, status);
@@ -89,21 +89,28 @@ namespace topo{
             buffer = blocking_recv(neighbours[idx], tag, status);
         }
         
-        if(return_source) buffer.push_back(status.MPI_SOURCE);
+        if(return_source) 
+            for(int i=0;i<num_neighbours;i++)
+                if(status.MPI_SOURCE==neighbours[i]){
+                    buffer.push_back(i);
+                    break;
+                }
+
         if(return_tag) buffer.push_back(status.MPI_TAG);
         return buffer;
     }
 
-    void send_to_neighbour(std::vector<long long int>& buffer, int idx, int tag){
+    void send_to_neighbour(std::vector<long long int>& buffer, long long int idx, long long int tag){
         assert(idx<num_neighbours);
         MPI_Send(&buffer[0], buffer.size(), MPI_LONG_LONG_INT, neighbours[idx], tag,MPI_COMM_WORLD);
     }
-    int make_global(std::vector<long long int> buffer, bool is_root){
+
+    long long int make_global(std::vector<long long int> buffer, bool is_root){
         std::vector<bool> send(numprocs, 1);
         std::vector<MPI_Request> reqs;
         std::vector<MPI_Status> stats;
         MPI_Status status;
-        int source = rank;
+        long long int source = rank;
         
         if(!is_root){
             buffer = blocking_recv(MPI_ANY_SOURCE, globals.size(), status);
@@ -127,7 +134,7 @@ namespace topo{
         std::vector<MPI_Request> reqs;
         std::vector<MPI_Status> stats;
         MPI_Status status;
-        int source = rank;
+        long long int source = rank;
 
         std::vector<long long int> buffer = {*val};
         send_neighbours(buffer, TAGS_REDUCE_NEIGHBOURS, send, reqs, stats);
@@ -147,7 +154,7 @@ namespace topo{
         std::vector<MPI_Request> reqs;
         std::vector<MPI_Status> stats;
         MPI_Status status;
-        int source = rank;
+        long long int source = rank;
 
         send_neighbours(send_buffer, TAGS_GATHER_NEIGHBOURS, send, reqs, stats);
 

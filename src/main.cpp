@@ -28,6 +28,8 @@ int main(int argc, char* argv[]){
     debug();
     #endif
     
+    double tbeg = MPI_Wtime();
+    
     MPI_Barrier( MPI_COMM_WORLD );
 
     topo::init();
@@ -39,6 +41,11 @@ int main(int argc, char* argv[]){
 
     run();
     
+    MPI_Barrier(MPI_COMM_WORLD);
+    if(rank==0){
+        double time = MPI_Wtime()-tbeg;
+        std::cerr << "Time taken: " << time << std::endl;
+    }
 
     MPI_Finalize();
 }
