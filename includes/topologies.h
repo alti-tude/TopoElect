@@ -21,6 +21,8 @@ namespace topo{
 
     void init();
     void make_ring();
+    void make_mesh();
+    
     long long int make_global(std::vector<long long int> v, bool is_root=false);
 
     std::vector<long long int> recv_from_neighbour(long long int idx=MPI_ANY_SOURCE, long long int tag=MPI_ANY_TAG, bool return_source = false, bool return_tag=false);

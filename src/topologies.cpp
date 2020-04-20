@@ -50,6 +50,18 @@ namespace topo{
         num_neighbours = neighbours.size();
     }
 
+    void make_mesh(){
+        for(int i=0;i<numprocs;i++){
+            for(int j=i+1;j<numprocs;j++){
+                adjacency_list[i].push_back(j);
+                adjacency_list[j].push_back(i);
+            }
+        }
+
+        neighbours = adjacency_list[rank];
+        num_neighbours = neighbours.size();
+    }
+    
     std::vector<long long int> blocking_recv(long long int source, long long int tag, MPI_Status& status){
         std::vector<long long int> buffer;
 
