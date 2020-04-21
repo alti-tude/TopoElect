@@ -4,7 +4,7 @@
 #include "mpi.h"
 
 #include "topologies.h"
-#include "shout/msgs.h"
+#include "bully/msgs.h"
 
 long long int Min(long long int a, long long int b){
     return std::min(a,b);
