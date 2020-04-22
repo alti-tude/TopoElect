@@ -76,7 +76,7 @@ void run(){
             TestMsg recvd_test_msg = topo::unmarshal<TestMsg>(msg_buffer);
             std::cout << recvd_test_msg << " " << node << std::endl;
 
-            if(recvd_test_msg.rank < node.rank) {
+            if(recvd_test_msg.rank > node.rank) {
                 //my tree merges with the testing tree 
                 acks_reqd = 0;
 
@@ -91,7 +91,7 @@ void run(){
                 }
             }
 
-            else if(recvd_test_msg.rank > node.rank){
+            else if(recvd_test_msg.rank < node.rank){
                 // node.is_reject[source_idx] = 1;
                 Reject send_reject_msg(node.root);
                 std::vector<long long int> buffer = topo::marshal(send_reject_msg);
@@ -133,6 +133,8 @@ void run(){
 
             return;
         }
+
+        std::cout << "Ack traceback -- " << node << ":  acks_reqd " << acks_reqd <<std::endl;
 
         if(acks_reqd == 0 and node.root == node.rank){
             std::cout << "VICTORY: " << node << ": " << node.root << ": is the root\n";
