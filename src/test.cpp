@@ -18,9 +18,9 @@ struct TestMsg{
 void run(){
     TestMsg T(2);
 
-    std::vector<long long int> v = topo::marshal<TestMsg>(T);
-    for(auto it:v) std::cout << it << " ";
-    std::cout << std::endl;
+    // std::vector<long long int> v = topo::marshal<TestMsg>(T);
+    // for(auto it:v) std::cout << it << " ";
+    // std::cout << std::endl;
     // if(topo::rank==0) {
     //     std::vector<long long int> v = {1,2,3};
     //     for(int i=0;i<topo::num_neighbours;i++) {

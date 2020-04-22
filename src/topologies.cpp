@@ -13,6 +13,9 @@ namespace topo{
     long long int TAGS_GATHER_NEIGHBOURS = 101;
     long long int TAGS_REDUCE_NEIGHBOURS = 102;
     long long int TAGS_CUSTOM_BASE = 200;
+    
+    size_t bsend_buffer_size = 1024+2*MPI_BSEND_OVERHEAD;
+    void* bsend_buffer;
 
     long long int rank;
     long long int numprocs;
@@ -27,8 +30,10 @@ namespace topo{
         srand(rank+RANDOM_SEED);
         if(rank==0) is_initiator = true;
         else if(rand()%(numprocs-1)<(NUM_INITIATORS-1)) is_initiator=true;
-        #endif
-
+        #endif 
+        
+        bsend_buffer = malloc(bsend_buffer_size);
+        MPI_Buffer_attach(bsend_buffer, bsend_buffer_size);
     }
 
     void make_ring(){
@@ -114,7 +119,7 @@ namespace topo{
 
     void send_to_neighbour(std::vector<long long int>& buffer, long long int idx, long long int tag){
         assert(idx<num_neighbours);
-        MPI_Send(&buffer[0], buffer.size(), MPI_LONG_LONG_INT, neighbours[idx], tag,MPI_COMM_WORLD);
+        MPI_Bsend(&buffer[0], buffer.size(), MPI_LONG_LONG_INT, neighbours[idx], tag,MPI_COMM_WORLD);
     }
 
     long long int make_global(std::vector<long long int> buffer, bool is_root){
