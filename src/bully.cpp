@@ -50,6 +50,7 @@ void run(){
 
     if(topo::is_initiator) {
         node.root = topo::rank;
+        // std::cout << "Setting root -- " << node.root << " " << node.rank << std::endl;
         node.father = -1;
 
         TestMsg test_msg(topo::rank);
@@ -61,7 +62,7 @@ void run(){
         }
     }
 
-    // std::cout << "Debug -- " << node.root << " " << node.rank << std::endl;
+    std::cout << "Debug -- " << node.root << " " << node.rank << std::endl;
 
     while(true){
         std::vector<long long int> recvd_buffer = topo::recv_from_neighbour(MPI_ANY_SOURCE, MPI_ANY_TAG, true, true);
@@ -73,12 +74,10 @@ void run(){
 
         if(tag==TAGS_TEST){
             TestMsg recvd_test_msg = topo::unmarshal<TestMsg>(msg_buffer);
-            // std::cout << recvd_test_msg << " " << node << std::endl;
+            std::cout << recvd_test_msg << " " << node << std::endl;
 
             if(recvd_test_msg.rank < node.rank) {
                 //my tree merges with the testing tree 
-                node.root = recvd_test_msg.root;
-                node.father = source_idx;
                 acks_reqd = 0;
 
                 //TODO: send test to all the non reject edges (except the one that you got it from)
@@ -104,6 +103,9 @@ void run(){
 
         if(tag==TAGS_REJECT){
             Reject recvd_reject_msg = topo::unmarshal<Reject>(msg_buffer);
+
+            node.root = recvd_reject_msg.root;
+            node.father = source_idx;
 
             acks_reqd -= 1;
             // node.is_reject[source_idx] = 1;            

@@ -4,7 +4,7 @@ project(ds_project)
 set(CMAKE_CXX_FLAGS "-std=c++11")
 set(NUM_INITIATORS 2) #rank 0 will always be an initiator
 set(RANDOM_SEED 11)
-set(TOPOLOGY "RING") #RING only for now
+set(TOPOLOGY "MESH") #RING only for now
 set(DEBUG "NDEBUG") #DEBUG / NDEBUG 
 
 find_package(MPI REQUIRED) 

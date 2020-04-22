@@ -8,6 +8,7 @@ const long long int TAGS_TEST = topo::TAGS_CUSTOM_BASE + 1;
 const long long int TAGS_ACK = topo::TAGS_CUSTOM_BASE + 2;
 const long long int TAGS_REJECT = topo::TAGS_CUSTOM_BASE + 3;
 const long long int TAGS_VICTORY = topo::TAGS_CUSTOM_BASE + 4;
+long long int MAX_ID = 0;
 
 struct Victory{
     long long int tag;
