@@ -3,9 +3,19 @@
 #include "mpi.h"
 #include "iostream"
 
-long long int Min(long long int a, long long int b){
-    return std::min(a,b);
-}
+const long long int TAGS_INIT = topo::TAGS_CUSTOM_BASE+1;
+
+struct InitMsg{
+    long long int rank;
+    long long int tag;
+    InitMsg(): rank(topo::rank), tag(TAGS_INIT) {}
+};
+
+struct NodeInfo{
+    long long int rank;
+    bool is_awake;
+    NodeInfo(): rank(topo::rank), is_awake(0) {}
+};
 
 struct TestMsg{
     long long int tag;
@@ -18,7 +28,6 @@ struct TestMsg{
 void run(){
     TestMsg T(2);
 
-    // std::vector<long long int> v = topo::marshal<TestMsg>(T);
     // for(auto it:v) std::cout << it << " ";
     // std::cout << std::endl;
     // if(topo::rank==0) {
