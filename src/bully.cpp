@@ -57,12 +57,11 @@ void run(){
         std::vector<long long int> buffer = topo::marshal(test_msg);
 
         for(int i=0;i<topo::num_neighbours;i++) {
-            std::cout << node.rank << std::endl;
             topo::send_to_neighbour(buffer, i, test_msg.tag);
         }
     }
 
-    std::cout << "Debug -- " << node.root << " " << node.rank << std::endl;
+    // std::cout << "Debug -- " << node.root << " " << node.rank << std::endl;
 
     while(true){
         std::vector<long long int> recvd_buffer = topo::recv_from_neighbour(MPI_ANY_SOURCE, MPI_ANY_TAG, true, true);
@@ -78,11 +77,16 @@ void run(){
         if(tag==TAGS_TEST)
         {
             TestMsg recvd_test_msg = topo::unmarshal<TestMsg>(msg_buffer);
-            std::cout << recvd_test_msg << " " << node << std::endl;
+
+            if(test_path[recvd_test_msg.rank][node.rank])
+                continue;
+
+            // std::cout << recvd_test_msg << " " << node << std::endl;
 
             // std::cout << "Test_msg -- Ranks == recvd " << recvd_test_msg.rank << " node " << node.rank << std::endl; 
             
-            node.is_reject[source_idx]=1;
+            // node.is_reject[source_idx]=1;
+            test_path[recvd_test_msg.rank][node.rank]=1;
 
             if(recvd_test_msg.rank < node.rank) {
                 //my tree merges with the testing tree 
@@ -101,10 +105,11 @@ void run(){
 
             else if(recvd_test_msg.rank > node.rank){
                 // node.is_reject[source_idx] = 1;
-                Reject send_reject_msg(node.root);
+
+                // std::cout << "Send reject from " << node.rank << " (root) " << node.root  << "   to " << recvd_test_msg.rank << "  : " << acks_reqd <<  std::endl;
+                Reject send_reject_msg(node.rank);
                 std::vector<long long int> buffer = topo::marshal(send_reject_msg);
                 topo::send_to_neighbour(buffer, source_idx, TAGS_REJECT);
-                std::cout << "Send reject from " << node.rank << "   to " << recvd_test_msg.rank << "  : " << acks_reqd <<  std::endl;
             }
             //* if(recvd_test_msg.root < node.root) do nothing
         }
@@ -114,56 +119,58 @@ void run(){
 
             acks_reqd -= 1;
             // node.is_reject[source_idx] = 1;            
-            std::cout << recvd_reject_msg << " " << node << ": " << acks_reqd <<  std::endl;
+            // std::cout << recvd_reject_msg << " " << node << ": " << acks_reqd <<  std::endl;
         }
 
         if(tag==TAGS_ACK){
             Ack recvd_ack_msg = topo::unmarshal<Ack>(msg_buffer);
 
-            std::cout << recvd_ack_msg << " " << node << ": " << acks_reqd <<  std::endl;
+            // std::cout << recvd_ack_msg << " " << node << ": " << acks_reqd <<  std::endl;
         }
 
-        if(tag==TAGS_VICTORY){
+        if(tag==TAGS_VICTORY)
+        {
             Victory recvd_victory_msg = topo::unmarshal<Victory>(msg_buffer);
-
-            std::cout << "VICTORY: " << node << ": " << recvd_victory_msg.rank << ": is the root" << std::endl;
+            node.root=recvd_victory_msg.root;
+            std::cout << "VICTORY: " << node.rank << ": " << node.root << ": is the root" << std::endl;
             for(int i=0;i<topo::num_neighbours;i++) {
-                if(source_idx!=i){
+                // if(source_idx!=i){
                     Victory send_victory_msg(node.root);
                     std::vector<long long int> buffer = topo::marshal(send_victory_msg);
                     topo::send_to_neighbour(buffer, i, TAGS_VICTORY);
-                }
+                // }
             }
     
-            std::cout << "Returning -- " << node.rank << std::endl;
+            // std::cout << "Returning -- " << node.rank << std::endl;
             
             return;
         }
 
-        std::cout << "Ack traceback -- " << node.rank << ":  acks_reqd " << acks_reqd << std::endl;
+        // std::cout << "Ack traceback -- " << node.rank << ":  acks_reqd " << acks_reqd << std::endl;
 
-        if(acks_reqd == topo::numprocs-1 and !found){
-            std::cout << "VICTORY: " << node << ": " << node.root << ": is the root\n";
-
+        if(acks_reqd == -topo::num_neighbours && !found)
+        {
+            std::cout << "VICTORY: " << node.rank << ": " << node.root << ": is the root\n";
             done[node.rank]=1;
             found=true;
-            for(int i=0;i<topo::num_neighbours;i++) {
-                if(node.father!=i){
+            for(int i=0;i<topo::num_neighbours;i++)
+            {
+                // if(node.father!=i){
                     Victory send_victory_msg(node.root);
                     std::vector<long long int> buffer = topo::marshal(send_victory_msg);
                     topo::send_to_neighbour(buffer, i, TAGS_VICTORY);
-                }
+                // }
             }
 
             return;
         }
         else if(done[node.rank])
             return;
-        else if(found){
-            done[node.rank]=1;
-            Ack send_ack_msg(node.root);
-            std::vector<long long int> buffer = topo::marshal(send_ack_msg);
-            topo::send_to_neighbour(buffer, node.father, TAGS_ACK);
-        }
+        // else if(found){
+        //     done[node.rank]=1;
+        //     Ack send_ack_msg(node.root);
+        //     std::vector<long long int> buffer = topo::marshal(send_ack_msg);
+        //     topo::send_to_neighbour(buffer, node.father, TAGS_ACK);
+        // }
     }
 }
