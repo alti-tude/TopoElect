@@ -57,7 +57,6 @@ void run(){
 
         for(int i=0;i<topo::num_neighbours;i++) {
             topo::send_to_neighbour(buffer, i, test_msg.tag);
-            std::cout << topo::rank << " " << topo::neighbours[i] << std::endl;
             topo::log("TEST", test_msg, i, true);
 
             acks_reqd += 1;
@@ -75,7 +74,6 @@ void run(){
         if(tag==TAGS_TEST){
             TestMsg recvd_test_msg = topo::unmarshal<TestMsg>(msg_buffer);
             topo::log("TEST", recvd_test_msg, source_idx, false);
-            // std::cout << recvd_test_msg << " " << node << std::endl;
 
             if(recvd_test_msg.root > node.root) {
                 node.root = recvd_test_msg.root;
@@ -103,7 +101,6 @@ void run(){
 
                 acks_reqd -=1;
             }
-            //* if(recvd_test_msg.root < node.root) do nothing
         }
 
         if(tag==TAGS_REJECT){
@@ -112,7 +109,6 @@ void run(){
 
             acks_reqd -= 1;
             node.is_reject[source_idx] = 1;            
-            // std::cout << recvd_reject_msg << " " << node << ": " << acks_reqd <<  std::endl;
         }
 
         if(tag==TAGS_ACK){
@@ -120,7 +116,6 @@ void run(){
             topo::log("ACK", recvd_ack_msg, source_idx, false);
 
             if(recvd_ack_msg.root == node.root) acks_reqd -= 1;
-            // std::cout << recvd_ack_msg << " " << node << ": " << acks_reqd <<  std::endl;
         }
 
         if(tag==TAGS_VICTORY){
