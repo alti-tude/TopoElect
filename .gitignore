@@ -2,3 +2,6 @@
 *.vscode*
 *temp*
 *msg_trace*
+*visualisations*
+*.png
+graph.txt

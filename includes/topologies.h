@@ -29,12 +29,17 @@ namespace topo{
 
     void make_ring();
     void make_mesh();
+    
+    void make_custom();
+    
     void make_general_graph();
 
     long long int make_global(std::vector<long long int> v, bool is_root=false);
 
     std::vector<long long int> recv_from_neighbour(long long int idx=MPI_ANY_SOURCE, long long int tag=MPI_ANY_TAG, bool return_source = false, bool return_tag=false);
+    std::vector<long long int> blocking_recv_from_neighbour(long long int idx, long long int tag, bool return_source = false, bool return_tag = false);
     void send_to_neighbour(std::vector<long long int>& buffer, long long int idx, long long int tag);
+    void blocking_send_to_neighbour(std::vector<long long int>& buffer, long long int idx, long long int tag);
 
     void reduce_neighbours(long long int* val, long long int (*reduction)(long long int a, long long int b));
     std::vector<std::vector<long long int> > gather_neighbours(std::vector<long long int>& send_buffer);
@@ -109,9 +114,25 @@ namespace topo{
 
     template<>
     inline void log<std::vector<long long int> > (std::string msg_name, std::vector<long long int> msg, long long int to_from, bool send){
+        std::stringstream dirname;
+
+        #ifdef RING
+        dirname << "./logs/procs_" << numprocs << "_max-inits_" << NUM_INITIATORS << "_topo_ring";
+        #endif
+        #ifdef MESH
+        dirname << "./logs/procs_" << numprocs << "_max-inits_" << NUM_INITIATORS << "_topo_mesh";
+        #endif
+        #ifdef GENERAL_GRAPH
+        dirname << "./logs/procs_" << numprocs << "_max-inits_" << NUM_INITIATORS << "_topo_general_graph";
+        #endif
+
         struct stat buff;
         if(stat("./logs", &buff)!=0) {
             mkdir("./logs", S_IRWXU | S_IRWXO | S_IRWXG);
+        }
+        
+        if(stat(dirname.str().c_str(), &buff)!=0) {
+            mkdir(dirname.str().c_str(), S_IRWXU | S_IRWXO | S_IRWXG);
         }
 
         std::stringstream ss;
@@ -124,7 +145,7 @@ namespace topo{
         ss << "\n";
 
         std::stringstream filename;
-        filename << "./logs/" << rank << "_msg_trace.txt";
+        filename << dirname.str() << "/" << rank << "_msg_trace.txt";
 
         std::ofstream file;
         file.open(filename.str(), std::ios::app);
