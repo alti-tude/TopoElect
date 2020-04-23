@@ -87,7 +87,9 @@ for dir in os.listdir("./logs"):
     titles.append(title)
     msg_counts.append(msg_count)
 
-plt.bar(titles, msg_counts, color="g")
-plt.title("TOTAL NUMBER OF MESSAGES GENERATED IN EACH EXPERIMENT")
-plt.savefig("./visualisations/msg_counts.png")
+fig = plt.figure(figsize=(40,10))
+ax = fig.add_subplot(1,1,1)
+ax.bar(titles, msg_counts, color="g")
+ax.set_title("TOTAL NUMBER OF MESSAGES GENERATED IN EACH EXPERIMENT")
+fig.savefig("./visualisations/msg_counts.png")
 plt.show()

@@ -1,8 +1,22 @@
+# LEADER ELECTION ALGORITHM
+## VIDEO LINK
+https://youtu.be/RQYWrpWQM6s
+
+## GITHUB LINK
+https://github.com/alti-tude/team_19_ds_project
+
+#### FOR RUNNING THE ALGOS
 ```bash
 mkdir build && cd build
 cmake ..
 make all
-mpirun -n 2 <algoname> # yoyo, shout, bully
+cd ..
+mpirun -n 2 build/<algoname> # yoyo, shout, bully
+```
+#### FOR VISUALISATIONS(after running some algo)
+```bash
+python visualisers/graph_visualisation.py
+python visualisers/statistics.py
 ```
 
 ### IMPLEMENTATION
@@ -15,7 +29,7 @@ mpirun -n 2 <algoname> # yoyo, shout, bully
     ```
 3. From now on, to run your code, the final executable will be inside the build folder and it will be called ```algo_name```
 
-### TOPO NAMESPACE
+### TOPO LIBRARY
 1. Available graph functions (call at the beginning of the run function according to preference )
 ```
 void topo::make_ring(): makes a ring of size numprocs
@@ -34,7 +48,7 @@ int topo::make_global(vector<long long int> data_buffer, bool is_root);
 // broadcasts the data buffer variable following the topological graph. 
 // returns the index in the globals vector, where the current buffer has been stored. This returned value is same in all the processes.
 ```
-## THE AUTHOR COULD NOT BE BOTHERED TO COMPLETE THE DOCUMENTATION. HELP YOURSELF TO ```topologies.h```
+## FOR FULL FUNCTIONALITY CHECKOUT ```topologies.h```
 
 ### DEBUGGING
 1. In the CMakeLists.txt in the root folder, uncomment the last line, ```add_definitions(-DDEBUG)```.
