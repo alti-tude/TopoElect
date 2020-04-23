@@ -4,6 +4,8 @@
 #include "iostream"
 #include "assert.h"
 #include "random"
+#include "set"
+#include "fstream"
 
 namespace topo{
     std::vector<std::vector<long long int> > adjacency_list;
@@ -36,6 +38,20 @@ namespace topo{
         MPI_Buffer_attach(bsend_buffer, bsend_buffer_size);
     }
 
+    void finalise(){
+        std::ofstream graph_file;
+        graph_file.open("graph.txt", std::ios::out);
+        graph_file << "";
+        graph_file.close();
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        graph_file.open("graph.txt", std::ios::app);
+        graph_file << rank << (is_initiator? ",i: ": ",n: "); 
+        for(auto it:neighbours) graph_file << it << " ";
+        graph_file << std::endl; 
+        graph_file.close();
+    }
+
     void make_ring(){
         if(numprocs == 2){
             adjacency_list[0].push_back(1);
@@ -66,7 +82,38 @@ namespace topo{
         neighbours = adjacency_list[rank];
         num_neighbours = neighbours.size();
     }
-   
+    
+    void make_general_graph(){
+        long long int conn_prob = numprocs;
+    
+        #ifdef CONNECTION_PROBABILITY
+        conn_prob = numprocs + CONNECTION_PROBABILITY;
+        #endif
+
+        #ifdef RANDOM_SEED
+        srand(RANDOM_SEED);
+        #endif
+        
+        
+        for(int i=0;i<numprocs;i++){
+            for(int j=0;j<numprocs;j++){
+                if(i==j) continue;
+                if(rand()%conn_prob<=1) 
+                    adjacency_list[j].push_back(i),
+                    adjacency_list[i].push_back(j);
+            }
+        }
+
+        for(int i=0;i<numprocs;i++){
+            std::set<long long int> st(adjacency_list[i].begin(), adjacency_list[i].end());
+            adjacency_list[i] = std::vector<long long int>(st.begin(), st.end());
+        }
+
+        neighbours = adjacency_list[rank];
+        num_neighbours = neighbours.size();
+
+    }
+
     std::vector<long long int> blocking_recv(long long int source, long long int tag, MPI_Status& status){
         std::vector<long long int> buffer;
 
