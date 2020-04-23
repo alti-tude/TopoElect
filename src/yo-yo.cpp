@@ -63,6 +63,9 @@ void run(){
             outgoing_edges.push_back(source_idx);
     }
     // END SETUP PHASE
+
+    bool is_alive = true;
+    while(is_alive){
     
     // YO- PHASE
     // OBJ -> PROPOGATE THE SOURCE VALUE TO THE CONNECTED SINKS
@@ -83,6 +86,10 @@ void run(){
 
     if(incoming_edges.size() == 0) {
         // SOURCE
+        if(outgoing_edges.size() == 0) {
+            std::cout << topo::rank << " is the elected leader "  << std::endl;
+            break;
+        }
         for(auto i:outgoing_edges) {
             std::vector<ll> source_vector = topo::marshal<NodeRecv>(source_value);
             topo::send_to_neighbour(source_vector, i, YO_TAG);
@@ -110,7 +117,7 @@ void run(){
             if(tmp_value.recv_value < min_recvd)
                 min_recvd = tmp_value.recv_value;
         }
-        incoming_edges = inc_edges;
+        // incoming_edges = inc_edges;
 
         // CLASSIFY EDGES FROM WHERE MINIMUM WAS OBTAINED
         for(auto i = received_values.begin() ; i != received_values.end() ; i++) {
@@ -146,6 +153,12 @@ void run(){
     NO = topo::marshal(no);
 
     if(outgoing_edges.size() == 0) {
+        if(incoming_edges.size() == 1) {
+            topo::send_to_neighbour(YES, incoming_edges[0], PRUNE_TAG);
+            is_alive = false;
+            incoming_edges.erase(incoming_edges.begin());
+        }
+        else {
         // SINK STARTS PROPAGATION
         for(auto i:pruned_edges)
             topo::blocking_send_to_neighbour(YES, i, PRUNE_TAG);
@@ -157,8 +170,9 @@ void run(){
             topo::blocking_send_to_neighbour(NO, i, OY_TAG);
 
             // INCOMING EDGE -> OUTGOING EDGE
-            incoming_edges.erase(std::find(incoming_edges.begin(), incoming_edges.end(), i));
+            inc_edges.erase(std::find(inc_edges.begin(), inc_edges.end(), i));
             outgoing_edges.push_back(i);
+        }
         }
     }
     else {
@@ -172,7 +186,6 @@ void run(){
             recv_bool_v.pop_back();
             ll source_idx = recv_bool_v[recv_bool_v.size() - 1];
             recv_bool_v.pop_back();
-            // std::cout << recv_bool_v.size() << " size " << std::endl;
 
             if(tag == PRUNE_TAG) {
                 outgoing_edges.erase(std::find(outgoing_edges.begin(), outgoing_edges.end(), source_idx));
@@ -204,7 +217,7 @@ void run(){
                 topo::blocking_send_to_neighbour(NO, i, OY_TAG);
 
                 // INCOMING EDGE -> OUTGOING EDGE
-                incoming_edges.erase(std::find(incoming_edges.begin(), incoming_edges.end(), i));
+                inc_edges.erase(std::find(inc_edges.begin(), inc_edges.end(), i));
                 outgoing_edges.push_back(i);
             }
         }
@@ -215,14 +228,15 @@ void run(){
                 topo::blocking_send_to_neighbour(NO, i, OY_TAG);
 
                 // INCOMING EDGE -> OUTGOING EDGE
-                incoming_edges.erase(std::find(incoming_edges.begin(), incoming_edges.end(), i));
+                inc_edges.erase(std::find(inc_edges.begin(), inc_edges.end(), i));
                 outgoing_edges.push_back(i);
             }
         }
 
         // UPDATE INCOMING EDGES AFTER YES OR NO HAS BEEN SENT TO INCOMING EDGES
-        incoming_edges.insert(incoming_edges.end(), tmp_incoming_edges.begin(), tmp_incoming_edges.end());
+        inc_edges.insert(inc_edges.end(), tmp_incoming_edges.begin(), tmp_incoming_edges.end());
     }
+    incoming_edges = inc_edges;
 
     std::cout << "Rank " << topo::rank << " incoming_edges : ";
     for(auto i:incoming_edges)
@@ -231,6 +245,7 @@ void run(){
     for(auto i:outgoing_edges)
         std::cout << i << " ";
     std::cout << std::endl;
+    }
 
 
 }
