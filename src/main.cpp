@@ -28,6 +28,7 @@ int main(int argc, char* argv[]){
     #ifdef DEBUG
     debug();
     #endif
+    MPI_Barrier( MPI_COMM_WORLD );
     
     
     MPI_Barrier( MPI_COMM_WORLD );

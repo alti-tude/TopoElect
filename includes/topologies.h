@@ -65,7 +65,7 @@ namespace topo{
     }
 
     template<class T>
-    inline void log(std::string& msg_name, T msg, long long int to_from, bool send){
+    inline void log(std::string msg_name, T msg, long long int to_from, bool send){
         std::stringstream ss;
         if(send) ss << rank << " sent to " << to_from <<" (";
         else ss << rank << " recieved from " << to_from <<" (";
@@ -85,7 +85,7 @@ namespace topo{
     }
 
     template<>
-    inline void log<std::vector<long long int> > (std::string& msg_name, std::vector<long long int> msg, long long int to_from, bool send){
+    inline void log<std::vector<long long int> > (std::string msg_name, std::vector<long long int> msg, long long int to_from, bool send){
         std::stringstream ss;
         if(send) ss << rank << " sent to " << neighbours[to_from] <<" (";
         else ss << rank << " recieved from " << neighbours[to_from]
