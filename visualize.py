@@ -16,8 +16,8 @@ for line in f:
   N += 1
   node_info = line.split(':')
   neighbours = node_info[1]
-  node = int(node_info[0][0])
-  flag = node_info[0][2]
+  node = int(node_info[0].split(',')[0])
+  flag = node_info[0].split(',')[1]
   neighbours = (neighbours.strip()).split()
 
   if (flag == 'i'):
