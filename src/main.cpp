@@ -50,11 +50,6 @@ int main(int argc, char* argv[]){
     std::cout << "GRAPH initialised by " << topo::rank << " ";
     #endif
 
-<<<<<<< HEAD
-    if(topo::is_initiator) std::cout << rank << " is initiator\n";
-    MPI_Barrier(MPI_COMM_WORLD);
-    double tbeg = MPI_Wtime();
-=======
     if(topo::is_initiator) std::cout << "(initiator)\n";
     else std::cout << std::endl;
 
@@ -62,7 +57,6 @@ int main(int argc, char* argv[]){
     MPI_Barrier( MPI_COMM_WORLD );
     double tbeg = MPI_Wtime();
     MPI_Barrier( MPI_COMM_WORLD );
->>>>>>> master
 
     run();
     MPI_Barrier(MPI_COMM_WORLD);
