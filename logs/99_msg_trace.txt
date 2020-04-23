@@ -1,9 +1,0 @@
-99 recieved from 37 (TEST): 201 37 0 
-99 sent to 4 (TEST): 201 99 0 
-99 sent to 32 (TEST): 201 99 0 
-99 recieved from 4 (TEST): 201 4 0 
-99 sent to 4 (REJECT): 203 99 0 
-99 recieved from 32 (TEST): 201 32 0 
-99 sent to 32 (REJECT): 203 99 0 
-99 sent to 37 (ACK): 202 99 0 
-99 recieved from 37 (VICTORY): 204 37 0 

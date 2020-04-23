@@ -1,6 +1,0 @@
-41 recieved from 17 (TEST): 201 17 0 
-41 sent to 33 (TEST): 201 41 0 
-41 recieved from 33 (TEST): 201 33 0 
-41 sent to 33 (REJECT): 203 41 0 
-41 sent to 17 (ACK): 202 41 0 
-41 recieved from 17 (VICTORY): 204 17 0 

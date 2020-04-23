@@ -1,6 +1,0 @@
-30 recieved from 18 (TEST): 201 18 0 
-30 sent to 50 (TEST): 201 30 0 
-30 recieved from 50 (ACK): 202 50 0 
-30 sent to 18 (ACK): 202 30 0 
-30 recieved from 18 (VICTORY): 204 18 0 
-30 sent to 50 (VICTORY): 204 30 0 

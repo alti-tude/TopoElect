@@ -1,3 +1,0 @@
-73 recieved from 70 (TEST): 201 70 0 
-73 sent to 70 (ACK): 202 73 0 
-73 recieved from 70 (VICTORY): 204 70 0 

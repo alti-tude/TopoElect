@@ -1,6 +1,0 @@
-46 recieved from 34 (TEST): 201 34 0 
-46 sent to 86 (TEST): 201 46 0 
-46 recieved from 86 (TEST): 201 86 0 
-46 sent to 86 (REJECT): 203 46 0 
-46 sent to 34 (ACK): 202 46 0 
-46 recieved from 34 (VICTORY): 204 34 0 
