@@ -2,3 +2,5 @@
 *.vscode*
 *temp*
 *msg_trace*
+graph.txt
+*graph.txt
