@@ -1,0 +1,12 @@
+35 recieved from 10 (TEST): 201 10 0 
+35 sent to 36 (TEST): 201 35 0 
+35 sent to 70 (TEST): 201 35 0 
+35 sent to 79 (TEST): 201 35 0 
+35 recieved from 79 (TEST): 201 79 0 
+35 sent to 79 (REJECT): 203 35 0 
+35 recieved from 70 (ACK): 202 70 0 
+35 recieved from 36 (ACK): 202 36 0 
+35 sent to 10 (ACK): 202 35 0 
+35 recieved from 10 (VICTORY): 204 10 0 
+35 sent to 36 (VICTORY): 204 35 0 
+35 sent to 70 (VICTORY): 204 35 0 

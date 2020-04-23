@@ -1,0 +1,15 @@
+8 recieved from 21 (TEST): 201 21 0 
+8 sent to 37 (TEST): 201 8 0 
+8 sent to 39 (TEST): 201 8 0 
+8 sent to 42 (TEST): 201 8 0 
+8 sent to 98 (TEST): 201 8 0 
+8 recieved from 37 (TEST): 201 37 0 
+8 sent to 37 (REJECT): 203 8 0 
+8 recieved from 39 (ACK): 202 39 0 
+8 recieved from 42 (TEST): 201 42 0 
+8 sent to 42 (REJECT): 203 8 0 
+8 recieved from 98 (TEST): 201 98 0 
+8 sent to 98 (REJECT): 203 8 0 
+8 sent to 21 (ACK): 202 8 0 
+8 recieved from 21 (VICTORY): 204 21 0 
+8 sent to 39 (VICTORY): 204 8 0 

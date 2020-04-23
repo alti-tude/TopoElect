@@ -1,0 +1,15 @@
+62 recieved from 40 (TEST): 201 40 0 
+62 sent to 1 (TEST): 201 62 0 
+62 sent to 14 (TEST): 201 62 0 
+62 sent to 17 (TEST): 201 62 0 
+62 sent to 87 (TEST): 201 62 0 
+62 recieved from 14 (TEST): 201 14 0 
+62 sent to 14 (REJECT): 203 62 0 
+62 recieved from 1 (TEST): 201 1 0 
+62 sent to 1 (REJECT): 203 62 0 
+62 recieved from 17 (TEST): 201 17 0 
+62 sent to 17 (REJECT): 203 62 0 
+62 recieved from 87 (TEST): 201 87 0 
+62 sent to 87 (REJECT): 203 62 0 
+62 sent to 40 (ACK): 202 62 0 
+62 recieved from 40 (VICTORY): 204 40 0 

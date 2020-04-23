@@ -1,0 +1,9 @@
+50 recieved from 30 (TEST): 201 30 0 
+50 sent to 37 (TEST): 201 50 0 
+50 sent to 80 (TEST): 201 50 0 
+50 recieved from 80 (TEST): 201 80 0 
+50 sent to 80 (REJECT): 203 50 0 
+50 recieved from 37 (TEST): 201 37 0 
+50 sent to 37 (REJECT): 203 50 0 
+50 sent to 30 (ACK): 202 50 0 
+50 recieved from 30 (VICTORY): 204 30 0 

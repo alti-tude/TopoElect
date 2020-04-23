@@ -1,0 +1,12 @@
+26 recieved from 19 (TEST): 201 19 0 
+26 sent to 7 (TEST): 201 26 0 
+26 sent to 56 (TEST): 201 26 0 
+26 sent to 89 (TEST): 201 26 0 
+26 recieved from 56 (TEST): 201 56 0 
+26 sent to 56 (REJECT): 203 26 0 
+26 recieved from 7 (TEST): 201 7 0 
+26 sent to 7 (REJECT): 203 26 0 
+26 recieved from 89 (TEST): 201 89 0 
+26 sent to 89 (REJECT): 203 26 0 
+26 sent to 19 (ACK): 202 26 0 
+26 recieved from 19 (VICTORY): 204 19 0 

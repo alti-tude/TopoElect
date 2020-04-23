@@ -1,0 +1,9 @@
+24 recieved from 80 (TEST): 201 80 0 
+24 sent to 88 (TEST): 201 24 0 
+24 sent to 89 (TEST): 201 24 0 
+24 recieved from 89 (TEST): 201 89 0 
+24 sent to 89 (REJECT): 203 24 0 
+24 recieved from 88 (TEST): 201 88 0 
+24 sent to 88 (REJECT): 203 24 0 
+24 sent to 80 (ACK): 202 24 0 
+24 recieved from 80 (VICTORY): 204 80 0 

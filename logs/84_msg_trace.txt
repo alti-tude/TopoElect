@@ -1,0 +1,9 @@
+84 recieved from 6 (TEST): 201 6 0 
+84 sent to 9 (TEST): 201 84 0 
+84 sent to 38 (TEST): 201 84 0 
+84 recieved from 9 (TEST): 201 9 0 
+84 sent to 9 (REJECT): 203 84 0 
+84 recieved from 38 (TEST): 201 38 0 
+84 sent to 38 (REJECT): 203 84 0 
+84 sent to 6 (ACK): 202 84 0 
+84 recieved from 6 (VICTORY): 204 6 0 

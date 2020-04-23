@@ -1,0 +1,9 @@
+72 recieved from 15 (TEST): 201 15 0 
+72 sent to 13 (TEST): 201 72 0 
+72 sent to 58 (TEST): 201 72 0 
+72 recieved from 13 (TEST): 201 13 0 
+72 sent to 13 (REJECT): 203 72 0 
+72 recieved from 58 (ACK): 202 58 0 
+72 sent to 15 (ACK): 202 72 0 
+72 recieved from 15 (VICTORY): 204 15 0 
+72 sent to 58 (VICTORY): 204 72 0 

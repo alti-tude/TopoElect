@@ -1,0 +1,9 @@
+89 recieved from 36 (TEST): 201 36 0 
+89 sent to 24 (TEST): 201 89 0 
+89 sent to 26 (TEST): 201 89 0 
+89 recieved from 24 (TEST): 201 24 0 
+89 sent to 24 (REJECT): 203 89 0 
+89 recieved from 26 (TEST): 201 26 0 
+89 sent to 26 (REJECT): 203 89 0 
+89 sent to 36 (ACK): 202 89 0 
+89 recieved from 36 (VICTORY): 204 36 0 
