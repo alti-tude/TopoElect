@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.07)
 project(ds_project)
 
 set(CMAKE_CXX_FLAGS "-std=c++11")
-set(NUM_INITIATORS 2) #rank 0 will always be an initiator
+set(NUM_INITIATORS 10) #rank 0 will always be an initiator
 set(RANDOM_SEED 11)
 
 set(TOPOLOGY "RING") #RING only for now

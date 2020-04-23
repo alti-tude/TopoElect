@@ -69,7 +69,21 @@ void run(){
         long long int tag = recvd_buffer[recvd_buffer.size()-1];
         long long int source_idx = recvd_buffer[recvd_buffer.size()-2];
 
-        if(node.is_reject[source_idx]) continue;
+        if(node.is_reject[source_idx]) {
+            if(tag==TAGS_TEST){
+                TestMsg recvd_test_msg = topo::unmarshal<TestMsg>(msg_buffer);
+                topo::log("TEST", recvd_test_msg, source_idx, false);
+            }
+            if(tag==TAGS_REJECT){
+                Reject recvd_reject_msg = topo::unmarshal<Reject>(msg_buffer);
+                topo::log("REJECT", recvd_reject_msg, source_idx, false);
+            }
+            if(tag==TAGS_ACK){
+                Ack recvd_ack_msg = topo::unmarshal<Ack>(msg_buffer);
+                topo::log("ACK", recvd_ack_msg, source_idx, false);
+            }
+            continue;
+        }
 
         if(tag==TAGS_TEST){
             TestMsg recvd_test_msg = topo::unmarshal<TestMsg>(msg_buffer);
