@@ -42,6 +42,10 @@ int main(int argc, char* argv[]){
     topo::make_mesh();
     std::cout << "MESH initialised by " << topo::rank << std::endl;
     #endif
+    #ifdef CUSTOM
+    topo::make_custom();
+    // std::cout << "Custom initialised" << std::endl;
+    #endif
 
     run();
     

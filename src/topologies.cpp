@@ -66,8 +66,40 @@ namespace topo{
         neighbours = adjacency_list[rank];
         num_neighbours = neighbours.size();
     }
+
+    void make_custom() {
+        if(numprocs != 9){
+            make_ring();
+            return;
+        }
+        else{
+            adjacency_list[0].push_back(5);
+            adjacency_list[0].push_back(7);
+            adjacency_list[1].push_back(7);
+            adjacency_list[1].push_back(8);
+            adjacency_list[2].push_back(3);
+            adjacency_list[2].push_back(6);
+            adjacency_list[3].push_back(2);
+            adjacency_list[3].push_back(4);
+            adjacency_list[4].push_back(3);
+            adjacency_list[4].push_back(8);
+            adjacency_list[4].push_back(6);
+            adjacency_list[5].push_back(0);
+            adjacency_list[5].push_back(7);
+            adjacency_list[6].push_back(4);
+            adjacency_list[6].push_back(2);
+            adjacency_list[7].push_back(1);
+            adjacency_list[7].push_back(0);
+            adjacency_list[7].push_back(5);
+            adjacency_list[8].push_back(1);
+            adjacency_list[8].push_back(4);
+
+            neighbours = adjacency_list[rank];
+            num_neighbours = neighbours.size();
+        }
+    }
    
-    std::vector<long long int> blocking_recv(long long int source, long long int tag, MPI_Status& status){
+    std::vector<long long int> non_blocking_recv(long long int source, long long int tag, MPI_Status& status){
         std::vector<long long int> buffer;
 
         MPI_Probe(source, tag, MPI_COMM_WORLD, &status);
@@ -80,6 +112,22 @@ namespace topo{
         buffer.resize(count);
         MPI_Irecv(&buffer[0],count,MPI_LONG_LONG_INT,source,tag,MPI_COMM_WORLD, &req);
         MPI_Wait(&req, &status);  
+
+        return buffer;     
+    }
+
+    std::vector<long long int> blocking_recv(long long int source, long long int tag, MPI_Status& status){
+        std::vector<long long int> buffer;
+
+        MPI_Probe(source, tag, MPI_COMM_WORLD, &status);
+        source = status.MPI_SOURCE;
+        tag = status.MPI_TAG;
+        int count;
+        MPI_Get_count(&status, MPI_LONG_LONG_INT, &count);
+
+        buffer.resize(count);
+        MPI_Recv(&buffer[0],count,MPI_LONG_LONG_INT,source,tag,MPI_COMM_WORLD, &status);
+        // MPI_Wait(&req, &status);  
 
         return buffer;     
     }
@@ -98,6 +146,26 @@ namespace topo{
     }
 
     std::vector<long long int> recv_from_neighbour(long long int idx, long long int tag, bool return_source, bool return_tag){
+        MPI_Status status;
+        std::vector<long long int> buffer;
+        if(idx == MPI_ANY_SOURCE) buffer = non_blocking_recv(MPI_ANY_SOURCE, tag, status);
+        else{
+            assert(idx < num_neighbours);
+            buffer = non_blocking_recv(neighbours[idx], tag, status);
+        }
+        
+        if(return_source) 
+            for(int i=0;i<num_neighbours;i++)
+                if(status.MPI_SOURCE==neighbours[i]){
+                    buffer.push_back(i);
+                    break;
+                }
+
+        if(return_tag) buffer.push_back(status.MPI_TAG);
+        return buffer;
+    }
+
+    std::vector<long long int> blocking_recv_from_neighbour(long long int idx, long long int tag, bool return_source, bool return_tag){
         MPI_Status status;
         std::vector<long long int> buffer;
         if(idx == MPI_ANY_SOURCE) buffer = blocking_recv(MPI_ANY_SOURCE, tag, status);
@@ -120,6 +188,11 @@ namespace topo{
     void send_to_neighbour(std::vector<long long int>& buffer, long long int idx, long long int tag){
         assert(idx<num_neighbours);
         MPI_Bsend(&buffer[0], buffer.size(), MPI_LONG_LONG_INT, neighbours[idx], tag,MPI_COMM_WORLD);
+    }
+
+    void blocking_send_to_neighbour(std::vector<long long int>& buffer, long long int idx, long long int tag){
+        assert(idx<num_neighbours);
+        MPI_Send(&buffer[0], buffer.size(), MPI_LONG_LONG_INT, neighbours[idx], tag, MPI_COMM_WORLD);
     }
 
     long long int make_global(std::vector<long long int> buffer, bool is_root){

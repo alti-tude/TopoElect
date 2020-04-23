@@ -22,11 +22,14 @@ namespace topo{
     void init();
     void make_ring();
     void make_mesh();
+    void make_custom();
     
     long long int make_global(std::vector<long long int> v, bool is_root=false);
 
     std::vector<long long int> recv_from_neighbour(long long int idx=MPI_ANY_SOURCE, long long int tag=MPI_ANY_TAG, bool return_source = false, bool return_tag=false);
+    std::vector<long long int> blocking_recv_from_neighbour(long long int idx, long long int tag, bool return_source = false, bool return_tag = false);
     void send_to_neighbour(std::vector<long long int>& buffer, long long int idx, long long int tag);
+    void blocking_send_to_neighbour(std::vector<long long int>& buffer, long long int idx, long long int tag);
 
     void reduce_neighbours(long long int* val, long long int (*reduction)(long long int a, long long int b));
     std::vector<std::vector<long long int> > gather_neighbours(std::vector<long long int>& send_buffer);
