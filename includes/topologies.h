@@ -69,15 +69,24 @@ namespace topo{
     template<class T>
     inline void log(std::string msg_name, T msg, long long int to_from, bool send){
         std::stringstream dirname;
-        dirname << "./logs/procs_" << numprocs << "_inits_" << NUM_INITIATORS << "_topo_" << TOPOLOGY;
+
+        #ifdef RING
+        dirname << "./logs/procs_" << numprocs << "_max-inits_" << NUM_INITIATORS << "_topo_ring";
+        #endif
+        #ifdef MESH
+        dirname << "./logs/procs_" << numprocs << "_max-inits_" << NUM_INITIATORS << "_topo_mesh";
+        #endif
+        #ifdef GENERAL_GRAPH
+        dirname << "./logs/procs_" << numprocs << "_max-inits_" << NUM_INITIATORS << "_topo_general_graph";
+        #endif
 
         struct stat buff;
         if(stat("./logs", &buff)!=0) {
             mkdir("./logs", S_IRWXU | S_IRWXO | S_IRWXG);
         }
         
-        if(stat(dirname.str(), &buff)!=0) {
-            mkdir(dirname.str(), S_IRWXU | S_IRWXO | S_IRWXG);
+        if(stat(dirname.str().c_str(), &buff)!=0) {
+            mkdir(dirname.str().c_str(), S_IRWXU | S_IRWXO | S_IRWXG);
         }
 
         std::stringstream ss;
