@@ -28,11 +28,6 @@ int main(int argc, char* argv[]){
     #ifdef DEBUG
     debug();
     #endif
-<<<<<<< HEAD
-    
-    
-=======
->>>>>>> master
     MPI_Barrier( MPI_COMM_WORLD );
     
     topo::init();
