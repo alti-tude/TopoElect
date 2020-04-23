@@ -4,10 +4,12 @@
 #include "iostream"
 #include <limits.h>
 #include <algorithm>
+#include <set>
 
 #define ll long long int
 #define YO_TAG 2625
 #define OY_TAG 6969
+#define PRUNE_TAG 1999
 
 const long long int TAGS_INIT = topo::TAGS_CUSTOM_BASE+1;
 
@@ -76,6 +78,8 @@ void run(){
 
     // Internal node variable initializations
     ll min_recvd = LLONG_MAX;
+    std::vector<ll> inc_edges(incoming_edges), pruned_edges;
+    std::set<ll> unique_values;
 
     if(incoming_edges.size() == 0) {
         // SOURCE
@@ -87,16 +91,26 @@ void run(){
     else {
         // SINK AND INTERNAL NODE COMMON FUNCTIONS
         for(auto i:incoming_edges) {
-            std::vector<ll> tmp_vector = topo::recv_from_neighbour(MPI_ANY_SOURCE, YO_TAG, true);
+            std::vector<ll> tmp_vector = topo::blocking_recv_from_neighbour(MPI_ANY_SOURCE, YO_TAG, true);
+
             ll source_idx = tmp_vector[tmp_vector.size() - 1];
             tmp_vector.pop_back();
+
             NodeRecv tmp_value = topo::unmarshal<NodeRecv>(tmp_vector);
+
+            if(unique_values.find(tmp_value.recv_value) != unique_values.end()) {
+                inc_edges.erase(std::find(inc_edges.begin(), inc_edges.end(), source_idx));
+                pruned_edges.push_back(source_idx);
+                continue;
+            }
+            unique_values.insert(tmp_value.recv_value);
 
             received_values.push_back(std::make_pair(source_idx, tmp_value.recv_value));
 
             if(tmp_value.recv_value < min_recvd)
                 min_recvd = tmp_value.recv_value;
         }
+        incoming_edges = inc_edges;
 
         // CLASSIFY EDGES FROM WHERE MINIMUM WAS OBTAINED
         for(auto i = received_values.begin() ; i != received_values.end() ; i++) {
@@ -133,6 +147,9 @@ void run(){
 
     if(outgoing_edges.size() == 0) {
         // SINK STARTS PROPAGATION
+        for(auto i:pruned_edges)
+            topo::blocking_send_to_neighbour(YES, i, PRUNE_TAG);
+
         for(auto i:min_value_edges)
             topo::blocking_send_to_neighbour(YES, i, OY_TAG);
 
@@ -150,9 +167,17 @@ void run(){
         ll len = outgoing_edges.size();
         std::vector<ll> tmp_incoming_edges;
         for(ll i = 0 ; i < len ; i++) {    
-            std::vector<ll> recv_bool_v = topo::blocking_recv_from_neighbour(MPI_ANY_SOURCE, OY_TAG, true);
+            std::vector<ll> recv_bool_v = topo::blocking_recv_from_neighbour(MPI_ANY_SOURCE, MPI_ANY_TAG, true, true);
+            ll tag = recv_bool_v[recv_bool_v.size() - 1];
+            recv_bool_v.pop_back();
             ll source_idx = recv_bool_v[recv_bool_v.size() - 1];
             recv_bool_v.pop_back();
+            // std::cout << recv_bool_v.size() << " size " << std::endl;
+
+            if(tag == PRUNE_TAG) {
+                outgoing_edges.erase(std::find(outgoing_edges.begin(), outgoing_edges.end(), source_idx));
+                continue;
+            }
 
             BoolMsg recv_bool = topo::unmarshal<BoolMsg>(recv_bool_v);
             final_value = final_value & (recv_bool.val % 2);
@@ -169,6 +194,9 @@ void run(){
         // SEND YES OR NO TO INCOMING EDGES - NONE IN CASE OF SOURCE
         // YES TO EDGES FROM WHICH MINIMUM IS OBTAINED
         if(final_value) {
+            for(auto i:pruned_edges)
+                topo::blocking_send_to_neighbour(YES, i, PRUNE_TAG);
+
             for(auto i:min_value_edges)
                 topo::blocking_send_to_neighbour(YES, i, OY_TAG);
 
