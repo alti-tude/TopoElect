@@ -50,11 +50,15 @@ void run(){
     // OBJ -> TO ESTABLISH INCOMING AND OUTGOING EDGES FOR ALL NODES
     for(int i = 0 ; i < topo::num_neighbours ; i++) {
         topo::send_to_neighbour(buffer, i, TAGS_INIT);
+        topo::log("INIT", buffer, i, true);
+
     }
     for(int i = 0 ; i < topo::num_neighbours ; i++) {
         std::vector<ll> recv_buf = topo::recv_from_neighbour(MPI_ANY_SOURCE, TAGS_INIT, true);
         ll source_idx = recv_buf[recv_buf.size() - 1];
         recv_buf.pop_back();
+        topo::log("INIT", recv_buf, source_idx, false);
+
         InitMsg tmp_init = topo::unmarshal<InitMsg>(recv_buf);
 
         if(tmp_init.rank < topo::rank)
@@ -94,15 +98,18 @@ void run(){
             for(auto i:outgoing_edges) {
                 std::vector<ll> source_vector = topo::marshal<NodeRecv>(source_value);
                 topo::send_to_neighbour(source_vector, i, YO_TAG);
+                topo::log("YO-", source_vector, i, true);
             }
         }
         else {
             // SINK AND INTERNAL NODE COMMON FUNCTIONS
             for(auto i:incoming_edges) {
-                std::vector<ll> tmp_vector = topo::blocking_recv_from_neighbour(MPI_ANY_SOURCE, YO_TAG, true);
+                std::vector<ll> tmp_vector = topo::recv_from_neighbour(MPI_ANY_SOURCE, YO_TAG, true);
 
                 ll source_idx = tmp_vector[tmp_vector.size() - 1];
                 tmp_vector.pop_back();
+                topo::log("YO-", tmp_vector, source_idx, false);
+
 
                 NodeRecv tmp_value = topo::unmarshal<NodeRecv>(tmp_vector);
 
@@ -133,6 +140,7 @@ void run(){
                 tmp_send.recv_value = min_recvd;
                 std::vector<ll> tmp_vector = topo::marshal(tmp_send);
                 topo::send_to_neighbour(tmp_vector, i, YO_TAG);
+                topo::log("YO-", tmp_vector, i, true);
             }
         }
         // END YO- PHASE
@@ -155,19 +163,26 @@ void run(){
         if(outgoing_edges.size() == 0) {
             if(incoming_edges.size() == 1) {
                 topo::send_to_neighbour(YES, incoming_edges[0], PRUNE_TAG);
+                topo::log("PRUNE", YES, incoming_edges[0], true);
                 is_alive = false;
                 incoming_edges.erase(incoming_edges.begin());
             }
             else {
                 // SINK STARTS PROPAGATION
-                for(auto i:pruned_edges)
-                    topo::blocking_send_to_neighbour(YES, i, PRUNE_TAG);
+                for(auto i:pruned_edges) {
+                    topo::send_to_neighbour(YES, i, PRUNE_TAG);
+                    topo::log("PRUNE", YES, i, true);
+                }
 
-                for(auto i:min_value_edges)
-                    topo::blocking_send_to_neighbour(YES, i, OY_TAG);
+
+                for(auto i:min_value_edges) {
+                    topo::send_to_neighbour(YES, i, OY_TAG);
+                    topo::log("-YO", YES, i, true);
+                }
 
                 for(auto i:non_min_value_edges) {
-                    topo::blocking_send_to_neighbour(NO, i, OY_TAG);
+                    topo::send_to_neighbour(NO, i, OY_TAG);
+                    topo::log("-YO", NO, i, true);
 
                     // INCOMING EDGE -> OUTGOING EDGE
                     inc_edges.erase(std::find(inc_edges.begin(), inc_edges.end(), i));
@@ -181,11 +196,12 @@ void run(){
             ll len = outgoing_edges.size();
             std::vector<ll> tmp_incoming_edges;
             for(ll i = 0 ; i < len ; i++) {    
-                std::vector<ll> recv_bool_v = topo::blocking_recv_from_neighbour(MPI_ANY_SOURCE, MPI_ANY_TAG, true, true);
+                std::vector<ll> recv_bool_v = topo::recv_from_neighbour(MPI_ANY_SOURCE, MPI_ANY_TAG, true, true);
                 ll tag = recv_bool_v[recv_bool_v.size() - 1];
                 recv_bool_v.pop_back();
                 ll source_idx = recv_bool_v[recv_bool_v.size() - 1];
                 recv_bool_v.pop_back();
+                topo::log("-YO", recv_bool_v, source_idx, false);
 
                 if(tag == PRUNE_TAG) {
                     outgoing_edges.erase(std::find(outgoing_edges.begin(), outgoing_edges.end(), source_idx));
@@ -202,19 +218,23 @@ void run(){
                     tmp_incoming_edges.push_back(source_idx);
                 }
             }
-            // std::cout << "rank : " << opo::rank << " final value " << final_value << std::endl;
 
             // SEND YES OR NO TO INCOMING EDGES - NONE IN CASE OF SOURCE
             // YES TO EDGES FROM WHICH MINIMUM IS OBTAINED
             if(final_value) {
-                for(auto i:pruned_edges)
-                    topo::blocking_send_to_neighbour(YES, i, PRUNE_TAG);
+                for(auto i:pruned_edges){
+                    topo::send_to_neighbour(YES, i, PRUNE_TAG);
+                    topo::log("PRUNE", YES, i, true);
+                }
 
-                for(auto i:min_value_edges)
-                    topo::blocking_send_to_neighbour(YES, i, OY_TAG);
+                for(auto i:min_value_edges) {
+                    topo::send_to_neighbour(YES, i, OY_TAG);
+                    topo::log("-YO", YES, i, true);
+                }
 
                 for(auto i:non_min_value_edges) {
-                    topo::blocking_send_to_neighbour(NO, i, OY_TAG);
+                    topo::send_to_neighbour(NO, i, OY_TAG);
+                    topo::log("-YO", NO, i, true);
 
                     // INCOMING EDGE -> OUTGOING EDGE
                     inc_edges.erase(std::find(inc_edges.begin(), inc_edges.end(), i));
@@ -225,7 +245,8 @@ void run(){
                 // SEND NO TO ALL AND REVERSE ALL
                 int len = incoming_edges.size();
                 for(ll i = 0 ; i < len ; i++) {
-                    topo::blocking_send_to_neighbour(NO, i, OY_TAG);
+                    topo::send_to_neighbour(NO, i, OY_TAG);
+                    topo::log("-YO", NO, i, true);
 
                     // INCOMING EDGE -> OUTGOING EDGE
                     inc_edges.erase(std::find(inc_edges.begin(), inc_edges.end(), i));

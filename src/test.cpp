@@ -26,7 +26,7 @@ struct TestMsg{
 };
 
 void run(){
-    TestMsg T(2);
+    // TestMsg T(2);
 
     // for(auto it:v) std::cout << it << " ";
     // std::cout << std::endl;
@@ -44,7 +44,7 @@ void run(){
     //     std::cout << std::endl;
     // }
     // MPI_Barrier(MPI_COMM_WORLD);
-    if(topo::is_initiator) std::cout << "initiator" << " " << topo::rank << std::endl;
+    // if(topo::is_initiator) std::cout << "initiator" << " " << topo::rank << std::endl;
     // long long int val=topo::rank+1;
     // topo::reduce_neighbours(&val, &Min);
 
