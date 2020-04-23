@@ -2,25 +2,7 @@
 mkdir build && cd build
 cmake ..
 make all
-mpirun -n 2 main
-```
-
-### EXPECTED OUTPUT OF THE TEST PROGRAM FOR 10 PROCS
-```bash
-mpirun -n 10 main
-```
-
-```
-1 0 2 1 
-1 1 3 1 
-1 2 4 1 
-1 3 5 1 
-1 4 6 1 
-1 5 7 1 
-1 6 8 1 
-1 7 9 1 
-1 8 10 1 
-1 9 11 1
+mpirun -n 2 <algoname> # yoyo, shout, bully
 ```
 
 ### IMPLEMENTATION
@@ -39,21 +21,20 @@ mpirun -n 10 main
 void topo::make_ring(): makes a ring of size numprocs
 ```
 
-2. Constructed graphs will be available in ```topo::adjacency_list``` (vector of vectors of ints). **DO NOT USE THIS** in your code. Use only for debugging.
-3. Neighbours will be available in ```topo::neighbours``` (vector of ints).
-4. Other important variables
+2. Other important variables
 ```c++
 topo::numprocs  //number of processes
 topo::rank      //rank of current process
 topo::globals   // vector of vectors of ints containing the broadcasted global variables
 ```
-5. Tag for send/recv operations should be greater than ```topo::TAGS_CUSTOM_BASE```
-6. Utility functions
+3. Tag for send/recv operations should be greater than ```topo::TAGS_CUSTOM_BASE```
+4. **Utility functions**
 ```c++
 int topo::make_global(vector<long long int> data_buffer, bool is_root);
 // broadcasts the data buffer variable following the topological graph. 
 // returns the index in the globals vector, where the current buffer has been stored. This returned value is same in all the processes.
 ```
+## THE AUTHOR COULD NOT BE BOTHERED TO COMPLETE THE DOCUMENTATION. HELP YOURSELF TO ```topologies.h```
 
 ### DEBUGGING
 1. In the CMakeLists.txt in the root folder, uncomment the last line, ```add_definitions(-DDEBUG)```.
