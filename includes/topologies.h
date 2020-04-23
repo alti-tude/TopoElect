@@ -68,9 +68,16 @@ namespace topo{
 
     template<class T>
     inline void log(std::string msg_name, T msg, long long int to_from, bool send){
+        std::stringstream dirname;
+        dirname << "./logs/procs_" << numprocs << "_inits_" << NUM_INITIATORS << "_topo_" << TOPOLOGY;
+
         struct stat buff;
         if(stat("./logs", &buff)!=0) {
             mkdir("./logs", S_IRWXU | S_IRWXO | S_IRWXG);
+        }
+        
+        if(stat(dirname.str(), &buff)!=0) {
+            mkdir(dirname.str(), S_IRWXU | S_IRWXO | S_IRWXG);
         }
 
         std::stringstream ss;
@@ -83,7 +90,7 @@ namespace topo{
         ss << "\n";
 
         std::stringstream filename;
-        filename << "./logs/" << rank << "_msg_trace.txt";
+        filename << dirname.str() << "/" << rank << "_msg_trace.txt";
 
         std::ofstream file;
         file.open(filename.str(), std::ios::app);
