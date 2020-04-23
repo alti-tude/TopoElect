@@ -3,6 +3,7 @@
 #include "mpi.h"
 #include "iostream"
 #include "unistd.h"
+#include "fstream"
 
 #include "test.h"
 
@@ -28,23 +29,30 @@ int main(int argc, char* argv[]){
     debug();
     #endif
     
-    double tbeg = MPI_Wtime();
-    
-    MPI_Barrier( MPI_COMM_WORLD );
-
     topo::init();
 
     #ifdef RING
     topo::make_ring();
-    std::cout << "RING initialised by " << topo::rank << std::endl;
+    std::cout << "RING initialised by " << topo::rank << " ";
     #endif
     #ifdef MESH
     topo::make_mesh();
-    std::cout << "MESH initialised by " << topo::rank << std::endl;
+    std::cout << "MESH initialised by " << topo::rank << " ";
+    #endif
+    #ifdef GENERAL_GRAPH
+    topo::make_general_graph();
+    std::cout << "GRAPH initialised by " << topo::rank << " ";
     #endif
 
+    if(topo::is_initiator) std::cout << "(initiator)\n";
+    else std::cout << std::endl;
+
+    topo::finalise();
+    MPI_Barrier( MPI_COMM_WORLD );
+    double tbeg = MPI_Wtime();
+    MPI_Barrier( MPI_COMM_WORLD );
+
     run();
-    
     MPI_Barrier(MPI_COMM_WORLD);
     if(rank==0){
         double time = MPI_Wtime()-tbeg;
