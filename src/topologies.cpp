@@ -96,6 +96,10 @@ namespace topo{
         
         
         for(int i=0;i<numprocs;i++){
+            if(i!=0) 
+                adjacency_list[i].push_back(i-1),
+                adjacency_list[i-1].push_back(i);
+                
             for(int j=0;j<numprocs;j++){
                 if(i==j) continue;
                 if(rand()%conn_prob<=1) 
