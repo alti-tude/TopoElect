@@ -89,6 +89,7 @@ void run(){
                 {
                     std::vector<long long int> buffer = topo::marshal(send_test_msg);
                     topo::send_to_neighbour(buffer, i, TAGS_TEST);
+                    topo::log("TEST", send_test_msg, i, true);
                 }
             }
 
@@ -97,12 +98,14 @@ void run(){
                 Reject send_reject_msg(node.rank);
                 std::vector<long long int> buffer = topo::marshal(send_reject_msg);
                 topo::send_to_neighbour(buffer, source_idx, TAGS_REJECT);
+                topo::log("REJECT", send_reject_msg, source_idx, true);
             }
         }
 
         if(tag==TAGS_REJECT)
         {
             Reject recvd_reject_msg = topo::unmarshal<Reject>(msg_buffer);
+            topo::log("REJECT", recvd_reject_msg, source_idx, false);
             Num_rejects -= 1;
         }
 
@@ -110,6 +113,7 @@ void run(){
         {
             Victory recvd_victory_msg = topo::unmarshal<Victory>(msg_buffer);
             node.root=recvd_victory_msg.root;
+            topo::log("VICTORY", recvd_victory_msg, source_idx, false);
             std::cout << "VICTORY: " << node.rank << ": " << node.root << ": is the root" << std::endl;
 
             for(int i=0;i<topo::num_neighbours;i++)
@@ -117,6 +121,7 @@ void run(){
                     Victory send_victory_msg(node.root);
                     std::vector<long long int> buffer = topo::marshal(send_victory_msg);
                     topo::send_to_neighbour(buffer, i, TAGS_VICTORY);
+                    topo::log("VICTORY", send_victory_msg, i, true);
             }
     
             return;
@@ -132,6 +137,7 @@ void run(){
                 Victory send_victory_msg(node.root);
                 std::vector<long long int> buffer = topo::marshal(send_victory_msg);
                 topo::send_to_neighbour(buffer, i, TAGS_VICTORY);
+                topo::log("VICTORY", send_victory_msg, i, true);
             }
 
             return;
