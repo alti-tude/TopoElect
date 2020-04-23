@@ -4,6 +4,8 @@
 #include "iostream"
 #include "assert.h"
 #include "random"
+#include "set"
+#include "fstream"
 
 namespace topo{
     std::vector<std::vector<long long int> > adjacency_list;
@@ -13,6 +15,9 @@ namespace topo{
     long long int TAGS_GATHER_NEIGHBOURS = 101;
     long long int TAGS_REDUCE_NEIGHBOURS = 102;
     long long int TAGS_CUSTOM_BASE = 200;
+    
+    size_t bsend_buffer_size = 1024+2*MPI_BSEND_OVERHEAD;
+    void* bsend_buffer;
 
     long long int rank;
     long long int numprocs;
@@ -27,8 +32,24 @@ namespace topo{
         srand(rank+RANDOM_SEED);
         if(rank==0) is_initiator = true;
         else if(rand()%(numprocs-1)<(NUM_INITIATORS-1)) is_initiator=true;
-        #endif
+        #endif 
+        
+        bsend_buffer = malloc(bsend_buffer_size);
+        MPI_Buffer_attach(bsend_buffer, bsend_buffer_size);
+    }
 
+    void finalise(){
+        std::ofstream graph_file;
+        graph_file.open("graph.txt", std::ios::out);
+        graph_file << "";
+        graph_file.close();
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        graph_file.open("graph.txt", std::ios::app);
+        graph_file << rank << (is_initiator? ",i: ": ",n: "); 
+        for(auto it:neighbours) graph_file << it << " ";
+        graph_file << std::endl; 
+        graph_file.close();
     }
 
     void make_ring(){
@@ -49,7 +70,7 @@ namespace topo{
         neighbours = adjacency_list[rank];
         num_neighbours = neighbours.size();
     }
-
+  
     void make_mesh(){
         for(int i=0;i<numprocs;i++){
             for(int j=i+1;j<numprocs;j++){
@@ -62,6 +83,41 @@ namespace topo{
         num_neighbours = neighbours.size();
     }
     
+    void make_general_graph(){
+        long long int conn_prob = numprocs;
+    
+        #ifdef CONNECTION_PROBABILITY
+        conn_prob = numprocs + CONNECTION_PROBABILITY;
+        #endif
+
+        #ifdef RANDOM_SEED
+        srand(RANDOM_SEED);
+        #endif
+        
+        
+        for(int i=0;i<numprocs;i++){
+            if(i!=0) 
+                adjacency_list[i].push_back(i-1),
+                adjacency_list[i-1].push_back(i);
+                
+            for(int j=0;j<numprocs;j++){
+                if(i==j) continue;
+                if(rand()%conn_prob<=1) 
+                    adjacency_list[j].push_back(i),
+                    adjacency_list[i].push_back(j);
+            }
+        }
+
+        for(int i=0;i<numprocs;i++){
+            std::set<long long int> st(adjacency_list[i].begin(), adjacency_list[i].end());
+            adjacency_list[i] = std::vector<long long int>(st.begin(), st.end());
+        }
+
+        neighbours = adjacency_list[rank];
+        num_neighbours = neighbours.size();
+
+    }
+
     std::vector<long long int> blocking_recv(long long int source, long long int tag, MPI_Status& status){
         std::vector<long long int> buffer;
 
@@ -114,7 +170,7 @@ namespace topo{
 
     void send_to_neighbour(std::vector<long long int>& buffer, long long int idx, long long int tag){
         assert(idx<num_neighbours);
-        MPI_Send(&buffer[0], buffer.size(), MPI_LONG_LONG_INT, neighbours[idx], tag,MPI_COMM_WORLD);
+        MPI_Bsend(&buffer[0], buffer.size(), MPI_LONG_LONG_INT, neighbours[idx], tag,MPI_COMM_WORLD);
     }
 
     long long int make_global(std::vector<long long int> buffer, bool is_root){

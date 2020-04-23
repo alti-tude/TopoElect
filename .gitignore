@@ -2,3 +2,4 @@
 *.vscode*
 *temp*
 *tmp*
+*msg_trace*
