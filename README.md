@@ -2,9 +2,6 @@
 ## VIDEO LINK
 https://youtu.be/Vn5KKBFVxf4
 
-## GITHUB LINK
-https://github.com/alti-tude/team_19_ds_project
-
 #### FOR RUNNING THE ALGOS
 ```bash
 mkdir build && cd build
